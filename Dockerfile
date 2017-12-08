@@ -1,4 +1,4 @@
-FROM python:3.5
+FROM python:3.6
 
 MAINTAINER Ryosuke Hasebe <hsb.1014@gmail.com>
 

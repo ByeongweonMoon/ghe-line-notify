@@ -67,6 +67,21 @@ def csrf_protect():
             abort(403)
 
 
+# check tag match only for PR merge success
+def check_tags_match(tags, payload):
+    if not tags:
+        return True
+
+    if payload['action'] == 'closed' and payload['pull_request']['merged_at'] is not None:
+        for tag in [tag for tag in tags.split(' ') if tag]:
+            if tag in payload['pull_request']['body']:
+                return True
+
+        return False
+    else:
+        return False
+
+
 @app.route('/webhook/<code>', methods=['POST'])
 def handle_webhook(code):
     if not req.is_json:
@@ -91,6 +106,9 @@ def handle_webhook(code):
 
     if event not in SUPPORT_EVENTS:
         return f_json.jsonify(message='Not support {} type.'.format(event))
+
+    if event == 'pull_request' and not check_tags_match(token.tags, payload):
+        return f_json.jsonify(message='ignore')
 
     text = render_message(token, event, payload)
     if not text:
@@ -125,7 +143,7 @@ def add_token():
     if req.method == 'POST':
         code = str(uuid.uuid4())
 
-        token_dict = {field: req.form[field] for field in ['token', 'secret', 'description']}
+        token_dict = {field: req.form[field] for field in ['token', 'secret', 'description', 'tags']}
         token = Token(code=code, **token_dict)
         db.session.add(token)
         db.session.commit()  # to get id
@@ -164,6 +182,7 @@ def edit_token(code):
         templates_dict = {template.event: template for template in templates}
 
         token.description = req.form['description']
+        token.tags = req.form['tags']
         if req.form['token_update'] == 'true':
             token.token = req.form['token']
         if req.form['secret_update'] == 'true':
@@ -186,7 +205,7 @@ def edit_token(code):
             'token_form.html',
             webhook_url='{}webhook/{}'.format(req.host_url, token.code),
             support_events=SUPPORT_EVENTS, code=token.code, token=token.token,
-            secret=token.secret, description=token.description,
+            secret=token.secret, description=token.description, tags=token.tags,
             templates={template.event: template.template for template in templates}
         )
 

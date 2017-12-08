@@ -11,6 +11,7 @@ class Token(db.Model):
     code = db.Column(db.String(255), nullable=False, unique=True)
     secret = db.Column(db.String(255), nullable=False, server_default='')
     description = db.Column(db.String(255), nullable=False, server_default='')
+    tags = db.Column(db.String(255), nullable=False, server_default='')
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id', None)
@@ -18,6 +19,7 @@ class Token(db.Model):
         self.code = kwargs.get('code', None)
         self.secret = kwargs.get('secret', None)
         self.description = kwargs.get('description', None)
+        self.tags = kwargs.get('tags', None)
 
     def __repr__(self):
         return '<User id={}, code={}>'.format(self.id, self.code)

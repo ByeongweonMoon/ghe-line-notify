@@ -28,6 +28,7 @@ def upgrade():
     sa.Column('code', sa.String(length=255), nullable=False),
     sa.Column('secret', sa.String(length=255), server_default='', nullable=False),
     sa.Column('description', sa.String(length=255), server_default='', nullable=False),
+    sa.Column('tags', sa.String(length=255), server_default='', nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('code')
     )

@@ -37,11 +37,12 @@ __issues = '''
 '''
 
 __pull_request = '''
-{{ sender.login }} {{ action }} pull-request {{ repository.full_name }}#{{ pull_request.number }}
-
+{%- if action in ['opened', 'reopened', 'closed'] -%}
+{{ sender.login }} {{ action }} pull-request 
 {{ pull_request.title|trim|truncate }}
 
 {{ pull_request.html_url }}
+{%- endif -%}
 '''
 
 __pull_request_review = '''
@@ -62,7 +63,7 @@ __pull_request_review = '''
 '''
 
 __pull_request_review_comment = '''
-{{ sender.login }} {{ action }} comment on pull-request {{ repository.full_name }}#{{ pull_request.number }}
+{{ sender.login }} {{ action }} comment on pull-request 
 
 {{ comment.body|trim|truncate }}
 
